@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dominosa</title>
+    <link rel="stylesheet" href="styles/main.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <div>
+          <h1>Dominosa</h1>
+          <p>Connect adjacent cells to form domino pairs.</p>
+        </div>
+        <div class="app__actions">
+          <span id="moves-display" class="moves">Moves: 0</span>
+          <button id="new-game-button" class="button button--ghost">New Game</button>
+        </div>
+      </header>
+
+      <section class="game">
+        <div id="grid" class="grid" aria-label="Dominosa grid" role="grid"></div>
+        <div id="game-over" class="game-over" aria-hidden="true">
+          <div class="game-over__card">
+            <h2>All dominoes placed!</h2>
+            <p id="game-over-summary">Start a new game.</p>
+            <div class="game-over__stats">
+              <span id="game-over-moves" class="moves">Moves: 0</span>
+            </div>
+            <div class="game-over__actions">
+              <button id="new-game-button-overlay" class="button button--ghost">New Game</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="src/app.js"></script>
+  </body>
+</html>
