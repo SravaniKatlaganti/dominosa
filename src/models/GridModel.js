@@ -1,5 +1,5 @@
 export default class GridModel {
-  constructor(config, values = null, solutionPairs = null) {
+  constructor(config, values = null) {
     if (typeof config === "number") {
       this.rows = config;
       this.cols = config;
@@ -12,13 +12,10 @@ export default class GridModel {
 
     if (values) {
       this.values = values;
-      this.solutionPairs = solutionPairs ?? [];
       return;
     }
 
-    const puzzle = GridModel.generateSolvablePuzzle(this.rows, this.cols);
-    this.values = puzzle.values;
-    this.solutionPairs = puzzle.solutionPairs;
+    this.values = GridModel.generateSolvablePuzzle(this.rows, this.cols);
   }
 
   static generateSolvablePuzzle(rows, cols) {
@@ -44,12 +41,9 @@ export default class GridModel {
         values[secondCell.row][secondCell.col] = secondValue;
       });
 
-      const { count, firstSolution } = GridModel.findSolutions(values, rows, cols, 2);
+      const count = GridModel.countSolutions(values, rows, cols, 2);
       if (count === 1) {
-        return {
-          values,
-          solutionPairs: firstSolution,
-        };
+        return values;
       }
     }
 
@@ -96,13 +90,11 @@ export default class GridModel {
     return layout;
   }
 
-  static findSolutions(values, rows, cols, limit = 2) {
+  static countSolutions(values, rows, cols, limit = 2) {
     const covered = GridModel.createMatrix(rows, cols, false);
     const usedPairs = new Set();
-    const workingSolution = [];
 
     let count = 0;
-    let firstSolution = [];
 
     const search = () => {
       if (count >= limit) {
@@ -112,12 +104,6 @@ export default class GridModel {
       const nextChoice = GridModel.findMostConstrainedCell(values, covered, usedPairs, rows, cols);
       if (!nextChoice) {
         count += 1;
-        if (firstSolution.length === 0) {
-          firstSolution = workingSolution.map(([cellA, cellB]) => [
-            GridModel.toKey(cellA.row, cellA.col),
-            GridModel.toKey(cellB.row, cellB.col),
-          ]);
-        }
         return;
       }
 
@@ -130,11 +116,9 @@ export default class GridModel {
         covered[cell.row][cell.col] = true;
         covered[neighbor.row][neighbor.col] = true;
         usedPairs.add(pairKey);
-        workingSolution.push([cell, neighbor]);
 
         search();
 
-        workingSolution.pop();
         usedPairs.delete(pairKey);
         covered[cell.row][cell.col] = false;
         covered[neighbor.row][neighbor.col] = false;
@@ -143,7 +127,7 @@ export default class GridModel {
 
     search();
 
-    return { count, firstSolution };
+    return count;
   }
 
   static findMostConstrainedCell(values, covered, usedPairs, rows, cols) {
@@ -226,10 +210,6 @@ export default class GridModel {
 
   static getValuePairKey(firstValue, secondValue) {
     return [firstValue, secondValue].sort((a, b) => a - b).join("-");
-  }
-
-  static toKey(row, col) {
-    return `${row}:${col}`;
   }
 
   static shuffle(arr) {
